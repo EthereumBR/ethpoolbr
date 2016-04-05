@@ -1,0 +1,24 @@
+{
+  "name": "ethpoolbr",
+  "version": "0.0.1",
+  "description": "Ethereum Pool BR",
+  "main": "index.js",
+  "dependencies": {
+    "ethashjs": "^0.0.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EthereumBR/ethpoolbr.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/EthereumBR/ethpoolbr/issues"
+  },
+  "homepage": "https://github.com/EthereumBR/ethpoolbr#readme"
+}
