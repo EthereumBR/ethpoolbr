@@ -14,14 +14,16 @@
   },
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js --exec babel-node",
-	"build": "babel . -d dist",
-	"serve": "node dist/index.js",
+    "start": "nodemon backend/server.js --exec babel-node",
+    "build": "babel backend/ -d backend/dist",
+    "serve": "node backend/dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "ethashjs": "^0.0.7",
-    "json-rpc2": "^1.0.2"
+    "json-rpc2": "^1.0.2",
+    "web3": "^0.15.3",
+    "winston": "^2.2.0"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
