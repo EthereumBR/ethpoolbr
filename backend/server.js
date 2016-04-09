@@ -1,3 +1,4 @@
+import config from 'config';
 import rpc from 'json-rpc2';
 import logger from './log';
 import utils from './utils';
@@ -13,3 +14,4 @@ server.expose('eth_submitWork', eth_submitWork);
 server.listenRaw(8008, 'localhost');
 
 logger.info('Server running at http://127.0.0.1:8008/');
+logger.info('Eth backend IPC path is %s', config.get('eth.ipcpath'));
