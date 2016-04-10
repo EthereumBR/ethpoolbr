@@ -1,5 +1,10 @@
 {
 	"eth": {
-		"ipcpath": "~/.ethereum/geth.ipc"
+		"ipcpath": "~/.ethereum/geth.ipc",
+		"timeout": 2000
+	},
+	"server": {
+		"host": "127.0.0.1",
+		"port": 8008
 	}
 }

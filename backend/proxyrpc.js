@@ -1,9 +1,15 @@
 import logger from './log';
 
 // list of connected clients
-var clients = new Map();
+export var clients = new Map();
 // current number of connections
 var connCount = 0;
+
+// TODO: fix this, it's terrible!
+var jobhandler = null;
+export function setJobHandler(jhandler) {
+	jobhandler = jhandler;
+}
 
 // client login
 export function eth_submitLogin(args, conn, cb) {
@@ -69,19 +75,30 @@ export function eth_submitLogin(args, conn, cb) {
 // client (eth-proxy) pings
 export function eth_getWork(args, conn, callback) {
 	// TODO: Implement this to support direct miner connection
-	logger.debug("client ping (%s)", conn.clidata.wallet);
-	callback(null, true);
+	logger.debug("Sending job to client %s...", conn.clidata.wallet);
+	// jobhandler.sendJob(conn);
+	callback(null, jobhandler._currentWork);
 }
 
 // client work submission
 export function eth_submitWork(args, conn, callback) {
 	// TODO: Implement this!
+	var worker = "";
+	if (conn.lastmsg.hasOwnProperty('worker')) {
+		worker = conn.lastmsg.worker + '@';
+	}
+	logger.debug("Work submitted by %s%s.", worker, conn.clidata.wallet);
 	callback(null, true);
 }
 
 // client hashrate submission
 export function eth_submitHashrate(args, conn, callback) {
 	// TODO: Implement this!
-	logger.debug()
+	var worker = "";
+	if (conn.lastmsg.hasOwnProperty('worker')) {
+		worker = conn.lastmsg.worker + '@';
+	}
+
+	logger.debug("Hashrate submitted by %s%s.", worker, conn.clidata.wallet);
 	callback(null, true);
 }
