@@ -1,4 +1,7 @@
 {
+	"log": {
+		"level": "debug"
+	},
 	"eth": {
 		"ipcpath": "~/.ethereum/geth.ipc",
 		"timeout": 2000

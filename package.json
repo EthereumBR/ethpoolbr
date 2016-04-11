@@ -16,7 +16,7 @@
   "scripts": {
     "start": "nodemon backend/server.js --exec babel-node",
     "build": "babel backend/ -d backend/dist",
-    "serve": "node backend/dist/index.js",
+    "serve": "node backend/dist/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

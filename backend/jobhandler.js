@@ -11,14 +11,20 @@ var IPCPATH = config.get('eth.ipcpath');
 var TIMEOUT = config.get('eth.timeout');
 
 export default class JobHandler {
-	constructor(clients) {
+	constructor(clientsList) {
 		// stores reference to client list
-		this._clients = clients;
+		this._clientList = clientsList;
 		this._connected = false;
 		this._syncing = false;
-		this._currentWork = {};
+		this._currentWork = [
+			'0x0000000000000000000000000000000000000000000000000000000000000000',
+			'0x0000000000000000000000000000000000000000000000000000000000000000',
+			'0x0000000000000000000000000000000000000000000000000000000000000000'
+		];
 		this._filter = null;
 	}
+
+	get currentWork() { return this._currentWork; }
 
 	start() {
 		this._ethconnect(IPCPATH, TIMEOUT, (provider) => {
@@ -36,8 +42,9 @@ export default class JobHandler {
 		});
 	}
 
-	sendJob(conn) {
-		conn.sendReply(null, this._currentWork, 0);
+	getWorkForClient(cli) {
+		// TODO: calculate target diff for client
+		return this._currentWork;
 	}
 
 	_init() {
@@ -61,7 +68,13 @@ export default class JobHandler {
 			web3.eth.getWork(this._getWork.bind(this));
 		} else {
 			if (this._currentWork != data) {
-				logger.debug('New work data: ', data);
+				logger.debug(
+					'New work data: \n' +
+					'\tHeader-hash: %s\n' +
+					'\tSeedhash: %s\n' +
+					'\tTarget: %s',
+					data[0], data[1], data[2]
+				);
 				// sets current work
 				this._currentWork = data;
 				// call dispatcher
@@ -72,12 +85,7 @@ export default class JobHandler {
 
 	_dispatcher() {
 		logger.debug('Dispatching jobs to clients...');
-		this._clients.forEach((value, key) => {
-			value.conns.forEach((conn) => {
-				// notify all clients of work
-				this.sendJob(conn);
-			});
-		});
+		this._clientList.sendWork(this._currentWork);
 	}
 
 	_setsync(error, sync) {
