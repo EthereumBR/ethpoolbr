@@ -51,6 +51,7 @@ export class Client {
 		return (this._connMap.size == 0);
 	}
 
+	// send work to all connection from this client
 	sendWork(work) {
 		this._connMap.forEach((data, conn) => {
 			conn.sendReply(null, work, 0);
@@ -127,6 +128,13 @@ export class ClientList {
 		this.reportStatus();
 
 		return cli;
+	}
+
+	// iterate on clients in list
+	forEach(cb) {
+		this._clients.forEach((cli, wallet) => {
+			cb(cli);
+		});
 	}
 
 	// sends work to all clients in list

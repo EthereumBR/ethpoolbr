@@ -15,8 +15,6 @@ export default class JobHandler {
 	constructor(clientsList) {
 		// stores reference to client list
 		this._clientList = clientsList;
-		this._connected = false;
-		this._syncing = false;
 		this._currentWork = [
 			'0x0000000000000000000000000000000000000000000000000000000000000000',
 			'0x0000000000000000000000000000000000000000000000000000000000000000',
@@ -30,12 +28,8 @@ export default class JobHandler {
 	start() {
 		this._ethconnect(IPCPATH, TIMEOUT, (provider) => {
 			logger.debug('Connected to eth backend.');
-			// restart if connection fails
-			// provider.connection.on('close', this._restart.bind(this))
 			// set new web3 provider
 			web3.setProvider(provider);
-			// set state as connected
-			this._connected = true;
 			// callback to set sync state
 			this._ethSync = web3.eth.isSyncing(this._setsync.bind(this));
 
@@ -89,7 +83,10 @@ export default class JobHandler {
 
 	_dispatcher() {
 		logger.debug('Dispatching jobs to clients...');
-		this._clientList.sendWork(this._currentWork);
+		this._clientList.forEach((cli) => {
+			var work = this.getWorkForClient(cli);
+			cli.sendWork(work);
+		});
 	}
 
 	_setsync(error, sync) {
@@ -98,31 +95,14 @@ export default class JobHandler {
 				logger.debug('Sync started.');
 				// stop all callbacks but this
 				web3.reset(true);
-				this._syncing = true;
 			} else if(sync) {
 				logger.debug('Sync state: %d/%d/%d',
 					sync.startingBlock, sync.currentBlock, sync.highestBlock);
 			} else {
 				logger.debug('Sync ended.');
-				this._syncing = false;
 				this._init();
 			}
 		}
-	}
-
-	_restart() {
-		logger.error('Disconnected from eth backend. Retrying...');
-		// set state as not connected
-		this._connected = false;
-		// this._ethSync.stopWatching();
-		// reset web3 state
-		// web3.reset();
-		// delete web3.currentProvider;
-		// web3.setProvider(null);
-		this._currentWork = {};
-
-		// restart job handler
-		// this.start();
 	}
 
 	_ethconnect(path, timeout, cb) {
