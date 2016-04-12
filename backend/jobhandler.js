@@ -9,6 +9,7 @@ var web3 = new Web3();
 // config data
 var IPCPATH = config.get('eth.ipcpath');
 var TIMEOUT = config.get('eth.timeout');
+var SECPERSHARE = config.get('eth.secondsBetweenShares');
 
 export default class JobHandler {
 	constructor(clientsList) {
@@ -43,8 +44,11 @@ export default class JobHandler {
 	}
 
 	getWorkForClient(cli) {
-		// TODO: calculate target diff for client
-		return this._currentWork;
+		// build work package
+		var work = this._currentWork;
+		work[2] = cli.calculateTarget(work, SECPERSHARE);
+
+		return work;
 	}
 
 	_init() {

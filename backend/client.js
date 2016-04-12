@@ -1,8 +1,20 @@
+import config from 'config';
+import ethUtil from 'ethereumjs-util';
+import BN from 'bn.js';
 import logger from './log';
+
+// config data
+var DEFAULTMHS = config.get('eth.defaultmhs');
 
 export class Client {
 	constructor(wallet, conn, email, clientapp) {
 		this.wallet = wallet;
+		this.mhs = DEFAULTMHS;
+
+		this._lastmhs = 0;
+		this._lastsecpershare = 0;
+		this._target = "0x0";
+
 		this._connMap = new Map();
 		this._connMap.set(conn, {
 			email: email,
@@ -43,6 +55,30 @@ export class Client {
 		this._connMap.forEach((data, conn) => {
 			conn.sendReply(null, work, 0);
 		});
+	}
+
+	// calculate target difficulty for this client
+	// heavily inspired by https://github.com/ming08108/EtherPool (shareHandler.js)
+	calculateTarget(work, secpershare) {
+		if ((this.mhs == this._lastmhs) && (this._secpershare == secpershare)) {
+			// return cached target to avoid recalculation
+			return this._target;
+		}
+
+		// get desired number of seconds between shares
+		var sec = new BN(secpershare);
+		// calculate hashes per second
+		var hs = new BN(this.mhs * 1000).mul(new BN(1000));
+		// total number of hashes before finding solution
+		var th = sec.mul(hs);
+		// calculate target for worker
+		var target = ethUtil.TWO_POW256.div(th);
+		// update cached values
+		this._lastmhs = this.mhs;
+		this._secpershare = secpershare;
+		this._target = '0x' + target.toString(16, 64);
+
+		return this._target;
 	}
 }
 

@@ -4,7 +4,11 @@
 	},
 	"eth": {
 		"ipcpath": "~/.ethereum/geth.ipc",
-		"timeout": 2000
+		"timeout": 2000,
+		"defaultmhs": 5,
+		"minmhs": 0.1,
+		"maxmhs": 9000,
+		"secondsBetweenShares": 100
 	},
 	"server": {
 		"host": "127.0.0.1",

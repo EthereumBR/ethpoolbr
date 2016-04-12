@@ -1,6 +1,9 @@
 import rpc from 'json-rpc2';
 
 // json-rpc2 fixes
+
+// TODO: Force disconnection on rpc error
+
 rpc.Connection.$include({
     'sendReply': function ($super, err, result, id) {
 		$super(err, result, id);

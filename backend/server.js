@@ -2,9 +2,9 @@ import config from 'config';
 import rpc from 'json-rpc2';
 import logger from './log';
 import utils from './utils';
-import EthProxyRPC from './ethproxyrpc';
 import {ClientList} from './client';
 import JobHandler from './jobhandler';
+import EthProxyRPC from './ethproxyrpc';
 
 // config data
 var HOST = config.get('server.host');

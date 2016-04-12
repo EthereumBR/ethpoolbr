@@ -35,7 +35,7 @@ export default class EthProxyRPC {
 		var cli = this._checkClientListed(conn, cb, 'eth_getWork from');
 		if (cli == null) return;
 
-		logger.debug("eth_getWork from %s...", cli.wallet);
+		logger.debug("eth_getWork from %s", cli.wallet);
 		// return current work to client
 		cb(null, this._jobhandler.getWorkForClient(cli));
 	}
@@ -43,20 +43,20 @@ export default class EthProxyRPC {
 	// client work submission
 	submitWork(args, conn, cb) {
 		// TODO: Implement this!
-		var cli = this._checkClientListed(conn, cb, 'eth_getWork from');
+		var cli = this._checkClientListed(conn, cb, 'submitWork from');
 		if (cli == null) return;
 
 		var worker = "";
 		if (conn.lastmsg.hasOwnProperty('worker')) {
 			worker = conn.lastmsg.worker + '@';
 		}
-		logger.debug("eth_submitWork from %s%s.", worker, cli.wallet);
+		logger.debug("eth_submitWork from %s%s", worker, cli.wallet);
 		cb(null, true);
 	}
 
 	// client hashrate submission
 	submitHashrate(args, conn, cb) {
-		var cli = this._checkClientListed(conn, cb, 'eth_getWork from');
+		var cli = this._checkClientListed(conn, cb, 'submitHashrate from');
 		if (cli == null) return;
 
 		// TODO: Implement this!
@@ -65,7 +65,8 @@ export default class EthProxyRPC {
 			worker = conn.lastmsg.worker + '@';
 		}
 
-		logger.debug("eth_submitHashrate from %s%s.", worker, cli.wallet);
+		var mhs = parseInt(args[0], 16) / 1000000;
+		logger.debug("eth_submitHashrate from %s%s (%s MH/s)", worker, cli.wallet, mhs);
 		cb(null, true);
 	}
 
@@ -74,7 +75,7 @@ export default class EthProxyRPC {
 		if (cli == null) {
 			logger.error('%s unlisted client! Disconnecting...', errmsg);
 			cb('invalid client (maybe not stratum?)', null);
-			conn.close();
+			conn.end();
 			return null;
 		}
 		return cli;
