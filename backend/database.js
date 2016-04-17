@@ -1,8 +1,3 @@
-config = {
-    sharesPeriodMinutes: 60, //aggregate shares per hour 
-    sharesPeriodMaxSize: 48, //2 days 
-    workersInactiveMaxHours: 48, //2 days     
-};
 accounts = {
     "0xWalletAddressOfTheMiner": {
             totalShares: 1032576, //incremented when saveValidShare increments the workers[workerName].totalShares and the sharesPerPeriod in the current period
@@ -54,27 +49,12 @@ function getUnpaidPeriods(){
     return this.unpaidPeriods;
 }
 
-function getUnpaidEth(){
-    unpaidEth = {};
-    unpaidPeriods = this.getUnpaidPeriods();
-    periodsEthPerShare = {}
-    
-    //calculates how much each share values in that period
-    for(unpaidPeriod in unpaidPeriods){ 
-       periodsEthPerShare[unpaidPeriod.key] = blocksPerPeriod[unpaidPeriod].totalEth / blocksPerPeriod[unpaidPeriod].shares;
-    }
-    
-    accounts = this.getAccounts();
-    for(account in accounts){
-        unpaidShares = 0;
-        for(unpaidPeriod in unpaidPeriods){
-            //calculates how much earning in that period for that account
-           unpaidShare += account.sharesPerPeriod[unpaidPeriod] * periodsEthPerShare[unpaidPeriod]; 
-            
-        }
-        unpaidEth[account.key] = unpaidShares;
-    }
-    return unpaidEth;
+function getUnpaidAccounts(){
+    return this.accounts;
+}
+
+function saveFoundBlock(blockNumber, blockEth, feeEth){
+   
 }
 
 
