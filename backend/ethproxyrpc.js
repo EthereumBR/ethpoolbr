@@ -35,23 +35,28 @@ export default class EthProxyRPC {
 		var cli = this._checkClientListed(conn, cb, 'eth_getWork from');
 		if (cli == null) return;
 
-		logger.debug("eth_getWork from %s", cli.wallet);
+		logger.debug('eth_getWork from %s', cli.wallet);
 		// return current work to client
 		cb(null, this._jobhandler.getWorkForClient(cli));
 	}
 
 	// client work submission
 	submitWork(args, conn, cb) {
-		// TODO: Implement this!
 		var cli = this._checkClientListed(conn, cb, 'submitWork from');
 		if (cli == null) return;
 
 		var worker = "";
 		if (conn.lastmsg.hasOwnProperty('worker')) {
-			worker = conn.lastmsg.worker + '@';
+			worker = conn.lastmsg.worker;
 		}
-		logger.debug("eth_submitWork from %s%s", worker, cli.wallet);
-		cb(null, true);
+		logger.debug('eth_submitWork from %s@%s', worker, cli.wallet);
+    logger.debug('  Nonce: %s', args[0]);
+    logger.debug('  Header-hash: %s', args[1]);
+    logger.debug('  Mixhash: %s', args[2]);
+
+    var valid = this._jobhandler.submitShareFromClient(cli, worker, args);
+
+    cb(null, valid);
 	}
 
 	// client hashrate submission
@@ -66,7 +71,7 @@ export default class EthProxyRPC {
 		}
 
 		var mhs = parseInt(args[0], 16) / 1000000;
-		logger.debug("eth_submitHashrate from %s%s (%s MH/s)", worker, cli.wallet, mhs);
+		logger.debug('eth_submitHashrate from %s%s (%s MH/s)', worker, cli.wallet, mhs);
 		cb(null, true);
 	}
 

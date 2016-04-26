@@ -23,7 +23,7 @@ export default class JobHandler {
 		this._filter = null;
 	}
 
-	get currentWork() { return this._currentWork; }
+	get currentWork() { return this._currentWork.slice(); }
 
 	start() {
 		this._ethconnect(IPCPATH, TIMEOUT, (provider) => {
@@ -39,10 +39,19 @@ export default class JobHandler {
 
 	getWorkForClient(cli) {
 		// build work package
-		var work = this._currentWork;
+		var work = this.currentWork;
 		work[2] = cli.calculateTarget(work, SECPERSHARE);
 
 		return work;
+	}
+
+	submitShareFromClient(cli, worker, share) {
+		// TODO: validate share
+		var valid = true;
+
+		cli.addShare(worker, share, valid);
+
+		return valid;
 	}
 
 	_init() {
@@ -84,6 +93,9 @@ export default class JobHandler {
 	_dispatcher() {
 		logger.debug('Dispatching jobs to clients...');
 		this._clientList.forEach((cli) => {
+			// recalculate client's MHS
+			cli.updateMHS();
+			// get work for client
 			var work = this.getWorkForClient(cli);
 			cli.sendWork(work);
 		});
@@ -119,6 +131,4 @@ export default class JobHandler {
 			setTimeout(this._ethconnect.bind(this), timeout, path, timeout, cb);
 		}
 	}
-
-
 }

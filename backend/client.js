@@ -4,7 +4,11 @@ import BN from 'bn.js';
 import logger from './log';
 
 // config data
-var DEFAULTMHS = config.get('eth.defaultmhs');
+var DEFAULTMHS = config.get('eth.defaultMHS');
+var MINMHS = config.get('eth.minMHS');
+var MAXMHS = config.get('eth.maxMHS');
+var WINDOWMINUTESUPDATEMHS = config.get('eth.windowMinutesUpdateMHS');
+var FREQMINUTESUPDATEMHS = config.get('eth.freqMinutesUpdateMHS');
 
 export class Client {
 	constructor(wallet, conn, email, clientapp) {
@@ -14,13 +18,19 @@ export class Client {
 		this._lastmhs = 0;
 		this._lastsecpershare = 0;
 		this._target = "0x0";
+		this._diff = 0;
+		this._allowUpdateMHS = true;
 
 		this._connMap = new Map();
 		this._connMap.set(conn, {
 			email: email,
 			app: clientapp
 		});
+
+		this._shares = [];
 	}
+
+	get target() { return this._target; }
 
 	addConnection(conn, email, clientapp) {
 		var data = this._connMap.get(conn);
@@ -78,8 +88,74 @@ export class Client {
 		this._lastmhs = this.mhs;
 		this._secpershare = secpershare;
 		this._target = '0x' + target.toString(16, 64);
+		this._diff = th.toString();
+
+		logger.debug('New target for %s', this.wallet);
+		logger.debug('  Current calculated MHS: %s MH/s', this.mhs);
 
 		return this._target;
+	}
+
+	addShare(worker, share, valid) {
+		// TODO: implement invalid share handling
+
+		// check if array is full
+		if (this._shares.length == 100) {
+			// remove oldest element
+			this._shares.pop();
+		}
+
+		// add share as first element of array
+		var entry = {
+			date: Date.now(),
+			worker: worker,
+			share: share,
+			difficulty: this._diff
+		}
+		this._shares.unshift(entry);
+		logger.debug('Share added to %s', this.wallet);
+		logger.debug('  date: %s', new Date(entry.date).toString());
+		logger.debug('  worker: %s', entry.worker);
+		logger.debug('  difficulty: %s', entry.difficulty);
+	}
+
+	updateMHS() {
+		// this avoids recalculating MHS for every new block
+		// decreases server load
+		if (!this._allowUpdateMHS) {
+			return;
+		}
+		// window in seconds to be considered for MHS calculation
+		var secwindow = WINDOWMINUTESUPDATEMHS * 60;
+		// sum all shares fram last 'secwindow' seconds
+		var sum = this._sumDiffLastSeconds(secwindow);
+		// calculate hashes per second
+		var hs = sum.div(new BN(secwindow)).toNumber();
+		// calculate megahashes per second
+		this.mhs = Math.max(hs / 1000000, MINMHS).round(3);
+		this.mhs = Math.min(this.mhs, MAXMHS);
+
+		// only allow updates after FREQMINUTESUPDATEMHS minutes
+		this._allowUpdateMHS = false;
+		setTimeout(function () {
+			this._allowUpdateMHS = true;
+		}.bind(this), FREQMINUTESUPDATEMHS * 60 * 1000);
+	}
+
+	_sumDiffLastSeconds(seconds) {
+		var sum = new BN(0);
+		var time = Date.now();
+		var ms = seconds * 1000;
+
+		this._shares.every((share) => {
+			if (time - share.date > ms) {
+				return false;
+			}
+			sum.iadd(new BN(share.difficulty));
+			return true;
+		});
+
+		return sum;
 	}
 }
 
