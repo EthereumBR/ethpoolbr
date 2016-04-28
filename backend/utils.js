@@ -8,12 +8,12 @@ rpc.Connection.$include({
     'sendReply': function ($super, err, result, id) {
 		$super(err, result, id);
 		// send EOL (needed by eth-proxy protocol)
-		this.write("\n");
+		this.write('\n');
 	},
 	'call': function ($super, method, params, callback) {
 		$super(method, params, callback);
 		// send EOL (needed by eth-proxy protocol)
-		this.write("\n");
+		this.write('\n');
 	},
 	'handleMessage': function ($super, msg) {
 		// store last msg in connection object
@@ -23,5 +23,5 @@ rpc.Connection.$include({
 });
 
 Number.prototype.round = function(places) {
-  return +(Math.round(this + "e+" + places)  + "e-" + places);
+  return +(Math.round(this + 'e+' + places)  + 'e-' + places);
 }

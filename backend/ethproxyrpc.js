@@ -45,7 +45,7 @@ export default class EthProxyRPC {
 		var cli = this._checkClientListed(conn, cb, 'submitWork from');
 		if (cli == null) return;
 
-		var worker = "";
+		var worker = '';
 		if (conn.lastmsg.hasOwnProperty('worker')) {
 			worker = conn.lastmsg.worker;
 		}
@@ -65,13 +65,16 @@ export default class EthProxyRPC {
 		if (cli == null) return;
 
 		// TODO: Implement this!
-		var worker = "";
+		var worker = '';
 		if (conn.lastmsg.hasOwnProperty('worker')) {
-			worker = conn.lastmsg.worker + '@';
+			worker = conn.lastmsg.worker;
 		}
 
 		var mhs = parseInt(args[0], 16) / 1000000;
-		logger.debug('eth_submitHashrate from %s%s (%s MH/s)', worker, cli.wallet, mhs);
+		cli.submitMHS(worker, mhs);
+
+		logger.debug('eth_submitHashrate from %s@%s (%s MH/s)', worker, cli.wallet, mhs);
+
 		cb(null, true);
 	}
 

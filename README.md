@@ -2,21 +2,25 @@
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 ![Version Pre-alpha](https://img.shields.io/badge/version-pre--alpha-red.svg)
 
+#### Attention! **This is not woking yet! It's pre-alpha.** No deploy scripts provided for now. Use at your own risk.
+
 ## EthPoolBR
-An open source Ethereum pool optimized for efficiency and transparency with fair flexible payment system. The project will be mainly in javascript, but bindings may be used to improve performance of ethash.
+An open-source Ethereum pool optimized for efficiency and transparency with a fair and flexible payment system. This project is written in javascript for node and uses bindings to improve [ethash](https://github.com/ethereumjs/node-ethash) performance.
 
 ### Payment System
-We are abstracting the payment system to be able to anyone easily extend your own payment system and we are basing it on Period Based Pay Per Share (PBPPS) that can be configured in minutes or dynamically changed based on ethereum network variables, like blocktime.
-The miners are paid proportionally to the shares accepted in the configured period.  
-The proportion is calculated by 
+A modular payment system allows for easy customization of the payout scheme. Default is Period Based Pay Per Share (PBPPS), with configurable payment interval in minutes or dynamically adjusted based on Ethereum network variables, like block time. The miners are paid proportionally to the valid shares submitted during the configured interval.
+
+Payment is calculated as follows:
 ````
 aPeriod.ethEarningsPerShare = aPeriod.totalEthEarned / aPeriod.totalAcceptedShares;
 aMiner.balance += aMiner.periodShares[aPeriod.key]*aPeriod.ethEarningsPerShare;
-```` 
+````
+
+### VarDiff
+The difficulty of work sent to miners is calculated dynamically, depending on their hash power. With the default configuration (`config/default.json`), this is adjusted so that every miner produces one valid share every ~100 seconds (`eth.secondsBetweenShares`). It takes approximately 15 minutes to calculate the miner's hash rate properly (`eth.windowMinutesUpdateMHS`). 
 
 ## EthereumBR Team
-This organization is informal and was created to unite developers in Brazil interested in working on open source project for Ethereum technology. We started this idea in Facebook Community (https://www.facebook.com/groups/ethereum.brasil/) that is a big open community.  
-The contributors list will be added when the project get its first running version.
+This informal organization was created to unite developers from Brazil interested in working with open source Ethereum technology. This idea was born inside [ethereum Brasil facebook community](https://www.facebook.com/groups/ethereum.brasil/). The [contributors list](https://github.com/EthereumBR/ethpoolbr/wiki/Developers) will be updated when the project gets its first release.
 
 ### Motivation
-We want to contribute on the Ethereum democracy revolution following the most of it's essence, that is community.
+We want to contribute to Ethereum's potential for social, economic and democratic revolution, having the community at its core.

@@ -17,9 +17,10 @@ export class Client {
 
 		this._lastmhs = 0;
 		this._lastsecpershare = 0;
-		this._target = "0x0";
+		this._target = '0x0';
 		this._diff = 0;
 		this._allowUpdateMHS = true;
+		this._submittedMHS = { client: 0 };
 
 		this._connMap = new Map();
 		this._connMap.set(conn, {
@@ -142,6 +143,26 @@ export class Client {
 		}.bind(this), FREQMINUTESUPDATEMHS * 60 * 1000);
 	}
 
+	submitMHS(worker, mhs) {
+		if (worker == '') { worker = 'default' };
+
+		if(!this._submittedMHS.hasOwnProperty(worker)) {
+			// TODO: check if this 'eval' is safe!
+			this._submittedMHS[worker] = 0;
+		}
+		// remove old value from sum
+		this._submittedMHS.client -= this._submittedMHS[worker];
+		this._submittedMHS.client = Math.max(0, this._submittedMHS.client);
+		// update client total MHS
+		this._submittedMHS.client += mhs;
+		// store MHS for worker
+		this._submittedMHS[worker] = mhs;
+
+		logger.debug('MHS submitted by %s@%s', worker, this.wallet);
+		logger.debug('  %s: %s MH/s', worker, this._submittedMHS[worker].round(3));
+		logger.debug('  Total: %s MH/s', this._submittedMHS.client.round(3));
+	}
+
 	_sumDiffLastSeconds(seconds) {
 		var sum = new BN(0);
 		var time = Date.now();
@@ -185,12 +206,12 @@ export class ClientList {
 
 		// set listener to remove connection from list when socket is closed
 		conn.on('close', function (hadError) {
-			logger.debug("client %s disconnected.", wallet)
+			logger.debug('client %s disconnected.', wallet)
 			// get client data
 			var cli = this._clients.get(wallet);
 			// remove client if it was last connection
 			if (cli.removeConnection(conn)) {
-				logger.debug("removing %s from list.", wallet)
+				logger.debug('removing %s from list.', wallet)
 				this._clients.delete(wallet);
 			}
 			// remove client object from connection object
@@ -228,7 +249,7 @@ export class ClientList {
 	}
 
 	reportStatus() {
-		logger.info("Wallets connected: %d", this.size);
-		logger.info("Total connections: %d", this.connCount);
+		logger.info('Wallets connected: %d', this.size);
+		logger.info('Total connections: %d', this.connCount);
 	}
 }
